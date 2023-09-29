@@ -16,9 +16,17 @@ import java.util.concurrent.ConcurrentHashMap;
  * @Date 2023/9/21 15:36
  */
 public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
-
+    /**
+     * 空对象
+     */
+    protected static final Object NULL_OBJECT = new Object();
+    /**
+     * 单例对象容器
+     */
     private Map<String, Object> singletonObjects = new ConcurrentHashMap<>();
-
+    /**
+     * 销毁Bean容器
+     */
     private final Map<String, DisposableBean> disposableBeans = new ConcurrentHashMap<>();
 
     @Override
@@ -34,7 +42,6 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
         disposableBeans.put(beanName, bean);
     }
 
-    @Override
     public void destroySingletons() {
         Set<String> keySet = this.disposableBeans.keySet();
         Object[] disposableBeanNames = keySet.toArray();

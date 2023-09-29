@@ -9,6 +9,8 @@ import ren.beginner.springframework.beans.PropertyValues;
  * @Date 2023/9/21 12:13
  */
 public class BeanDefinition {
+    String SCOPE_SINGLETON = ConfigurableBeanFactory.SCOPE_SINGLETON;
+    String SCOPE_PROTOTYPE = ConfigurableBeanFactory.SCOPE_PROTOTYPE;
     /**
      * bean对应的class
      */
@@ -25,6 +27,18 @@ public class BeanDefinition {
      * 销毁执行的方法
      */
     private String destroyMethodName;
+    /**
+     * 对象作用域
+     */
+    private String scope = SCOPE_SINGLETON;
+    /**
+     * 是否为单例对象
+     */
+    private boolean singleton;
+    /**
+     * 是否为实例对象
+     */
+    private boolean prototype;
 
     public BeanDefinition(Class beanClass) {
         this(beanClass, null);
@@ -33,6 +47,20 @@ public class BeanDefinition {
     public BeanDefinition(Class beanClass, PropertyValues propertyValues) {
         this.beanClass = beanClass;
         this.propertyValues = propertyValues != null ? propertyValues : new PropertyValues();
+    }
+
+    public void setScope(String scope) {
+        this.scope = scope;
+        singleton = SCOPE_SINGLETON.equals(scope);
+        prototype = SCOPE_PROTOTYPE.equals(scope);
+    }
+
+    public boolean isSingleton() {
+        return singleton;
+    }
+
+    public boolean isPrototype() {
+        return prototype;
     }
 
     public Class getBeanClass() {

@@ -16,7 +16,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * @Date 2023/9/21 15:36
  */
 public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFactory implements BeanDefinitionRegistry, ConfigurableListableBeanFactory {
-
+    /**
+     * BeanDefinition的容器
+     */
     private Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>();
 
     @Override
@@ -49,7 +51,9 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
     @Override
     public BeanDefinition getBeanDefinition(String beanName) throws BeansException {
         BeanDefinition beanDefinition = beanDefinitionMap.get(beanName);
-        if (beanDefinition == null) throw new BeansException("No bean named '" + beanName + "' is defined");
+        if (beanDefinition == null) {
+            throw new BeansException("No bean named '" + beanName + "' is defined");
+        }
         return beanDefinition;
     }
 
