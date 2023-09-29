@@ -8,18 +8,19 @@ import java.util.Map;
 public class UserDao {
     private static Map<String, String> hashMap = new HashMap<>();
 
-    public String queryUserName(String uId) {
-        return hashMap.get(uId);
-    }
-
     public void initDataMethod() {
-        System.out.println("执行 init-method");
-        hashMap = ImmutableMap.of("10001", "Jzl", "10002", "Ljz", "10003", "Zlj");
+        System.out.println("执行：init-method");
+        hashMap.put("10001", "Jzl");
+        hashMap.put("10002", "Lzj");
+        hashMap.put("10003", "Zlj");
     }
 
     public void destroyDataMethod() {
-        System.out.println("执行 destroy-method");
-        // ImmutableMap不支持clear方法
-        // hashMap.clear();
+        System.out.println("执行：destroy-method");
+        hashMap.clear();
+    }
+
+    public String queryUserName(String uId) {
+        return hashMap.get(uId);
     }
 }

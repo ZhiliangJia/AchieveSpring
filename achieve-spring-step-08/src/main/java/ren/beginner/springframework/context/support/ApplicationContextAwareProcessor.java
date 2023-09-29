@@ -1,9 +1,9 @@
 package ren.beginner.springframework.context.support;
 
 import ren.beginner.springframework.beans.BeansException;
-import ren.beginner.springframework.beans.factory.ApplicationContextAware;
 import ren.beginner.springframework.beans.factory.config.BeanPostProcessor;
 import ren.beginner.springframework.context.ApplicationContext;
+import ren.beginner.springframework.context.ApplicationContextAware;
 
 /**
  * @Created by Zhiliang

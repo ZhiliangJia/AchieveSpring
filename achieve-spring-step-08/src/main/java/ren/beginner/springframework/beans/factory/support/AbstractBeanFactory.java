@@ -4,9 +4,11 @@ import ren.beginner.springframework.beans.BeansException;
 import ren.beginner.springframework.beans.factory.config.BeanDefinition;
 import ren.beginner.springframework.beans.factory.config.BeanPostProcessor;
 import ren.beginner.springframework.beans.factory.config.ConfigurableBeanFactory;
+import ren.beginner.springframework.utils.ClassUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+
 /**
  * {@link-org.springframework.beans.factory.BeanFactory}实现的抽象基类，提
  * 供了{@link-org.springframework.beans.factory.config.ConfigurableBeanFacctory}SPI的
@@ -16,6 +18,10 @@ import java.util.List;
  * @Date 2023/9/21 15:36
  */
 public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry implements ConfigurableBeanFactory {
+    /**
+     * 默认的ClassLoader
+     */
+    private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
     /**
      * BeanPostProcessor列表
      */
@@ -73,5 +79,9 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
 
     public List<BeanPostProcessor> getBeanPostProcessors() {
         return beanPostProcessors;
+    }
+
+    public ClassLoader getBeanClassLoader() {
+        return this.beanClassLoader;
     }
 }

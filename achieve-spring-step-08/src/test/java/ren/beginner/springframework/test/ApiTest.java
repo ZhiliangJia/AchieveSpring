@@ -1,5 +1,6 @@
 package ren.beginner.springframework.test;
 
+import com.alibaba.fastjson2.JSON;
 import org.junit.Test;
 import ren.beginner.springframework.context.support.ClassPathXmlApplicationContext;
 import ren.beginner.springframework.test.bean.UserService;
@@ -12,7 +13,7 @@ public class ApiTest {
         applicationContext.registerShutdownHook();
 
         UserService userService = applicationContext.getBean("userService", UserService.class);
-        System.out.println(userService);
+        System.out.println(JSON.toJSONString(userService));
         String result = userService.queryUserInfo();
         System.out.println(result);
     }
