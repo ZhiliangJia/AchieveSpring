@@ -16,6 +16,9 @@ import java.net.URLConnection;
  */
 public class UrlResource implements Resource {
 
+    /**
+     * 文件路径
+     */
     private final URL url;
 
     public UrlResource(URL url) {

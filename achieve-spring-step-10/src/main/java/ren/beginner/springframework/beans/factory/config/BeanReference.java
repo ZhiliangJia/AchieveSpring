@@ -9,7 +9,7 @@ package ren.beginner.springframework.beans.factory.config;
  */
 public class BeanReference {
     /**
-     * bean的名称
+     * bean名称
      */
     private final String beanName;
 

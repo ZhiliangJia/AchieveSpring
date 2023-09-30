@@ -16,4 +16,12 @@ public interface SingletonBeanRegistry {
      * @return
      */
     Object getSingleton(String beanName);
+
+    /**
+     * 在bean注册中心以给定的bean名称将给定的现有对象注册为单例对象。
+     *
+     * @param beanName
+     * @param singletonObject
+     */
+    void registerSingleton(String beanName, Object singletonObject);
 }

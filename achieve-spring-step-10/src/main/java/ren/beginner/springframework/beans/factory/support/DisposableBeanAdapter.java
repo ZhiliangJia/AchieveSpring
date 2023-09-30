@@ -8,6 +8,11 @@ import ren.beginner.springframework.beans.factory.config.BeanDefinition;
 import java.lang.reflect.Method;
 
 /**
+ * 实现{@link DisposableBean}和{@link Runnable}接口的适配器，在给定的bean实例上执行各种销毁步骤：
+ * 1. DestructionAwareBeanPostProcessors
+ * 2. 实现了DisposableBean的bean
+ * 3. 在bean定义上指定的自定义销毁方法
+ *
  * @Created by Zhiliang
  * @Date 2023/9/22 16:54
  */

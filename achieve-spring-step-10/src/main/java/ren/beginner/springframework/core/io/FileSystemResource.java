@@ -12,8 +12,13 @@ import java.io.InputStream;
  * @Date 2023/9/21 12:13
  */
 public class FileSystemResource implements Resource {
+    /**
+     * 文件
+     */
     private final File file;
-
+    /**
+     * 文件路径
+     */
     private final String path;
 
     public FileSystemResource(File file) {

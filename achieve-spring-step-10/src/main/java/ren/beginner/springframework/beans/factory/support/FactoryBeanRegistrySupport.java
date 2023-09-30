@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * 支持需要处理｛@link org.springframework.beans.factory.FactoryBean｝实例的singleton注册表的基类，与｛@link-DefaultSingletonBeanRegistry｝的singleton管理集成。
+ *
  * @Created by Zhiliang
  * @Date 2023/9/29 20:17
  */
