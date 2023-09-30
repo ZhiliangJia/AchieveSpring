@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans>
+    <bean class="ren.beginner.springframework.test.event.ContextRefreshedEventListener"/>
+
+    <bean class="ren.beginner.springframework.test.event.ContextClosedEventListener"/>
+
+    <bean class="ren.beginner.springframework.test.event.CustomEventListener"/>
+</beans>
