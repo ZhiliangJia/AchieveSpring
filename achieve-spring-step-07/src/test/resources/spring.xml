@@ -6,7 +6,7 @@
 
     <bean id="userService" class="ren.beginner.springframework.test.bean.UserService">
         <property name="uid" value="10001"/>
-        <property name="company" value="公司 "/>
+        <property name="company" value="公司"/>
         <property name="location" value="沈阳"/>
         <property name="userDao" ref="userDao"/>
     </bean>
