@@ -1,10 +1,14 @@
-在 Spring 中有一个 Event 事件功能，它可以提供事件的定义、发布以及监听事件来完成一些自定义的动作。比如你可以定义一个新用户注册的事件，当有用户执行注册完成后，在事件监听中给用户发送一些优惠券和短信提醒，这样的操作就可以把属于基本功能的注册和对应的策略服务分开，降低系统的耦合。以后在扩展注册服务，比如需要添加风控策略、添加实名认证、判断用户属性等都不会影响到依赖注册成功后执行的动作。
+代理类的实现基本都大家都见过，那么有了一个基本的思路后，接下来就需要考虑下怎么给方法做代理呢，而不是代理类。另外怎么去代理所有符合某些规则的所有类中方法呢。如果可以代理掉所有类的方法，就可以做一个方法拦截器，给所有被代理的方法添加上一些自定义处理，比如打印日志、记录耗时、监控异常等。
 
-![](https://bugstack.cn/assets/images/spring/spring-11-01.png)
+![](https://bugstack.cn/assets/images/spring/spring-12-01.png)
 
-- 在整个功能实现过程中，仍然需要在面向用户的应用上下文 AbstractApplicationContext 中添加相关事件内容，包括：初始化事件发布者、注册事件监听器、发布容器刷新完成事件。
-- 使用观察者模式定义事件类、监听类、发布类，同时还需要完成一个广播器的功能，接收到事件推送时进行分析处理符合监听事件接受者感兴趣的事件，也就是使用 isAssignableFrom 进行判断。
-- isAssignableFrom 和 instanceof 相似，不过 isAssignableFrom 是用来判断子类和父类的关系的，或者接口的实现类和接口的关系的，默认所有的类的终极父类都是Object。如果A.isAssignableFrom(B)结果是true，证明B可以转换成为A,也就是A可以由B转换而来。
+- 就像你在使用 Spring 的 AOP 一样，只处理一些需要被拦截的方法。在拦截方法后，执行你对方法的扩展操作。
+- 那么我们就需要先来实现一个可以代理方法的 Proxy，其实代理方法主要是使用到方法拦截器类处理方法的调用
+  MethodInterceptor#invoke，而不是直接使用 invoke 方法中的入参 Method method 进行 method.invoke(targetObj, args)
+  这块是整个使用时的差异。
+- 除了以上的核心功能实现，还需要使用到 org.aspectj.weaver.tools.PointcutParser 处理拦截表达式 "execution(*
+  cn.bugstack.springframework.test.bean.IUserService.*(..))"，有了方法代理和处理拦截，我们就可以完成设计出一个 AOP 的雏形了。
 
 参考文献：
+
 1. [小傅哥-【bugstack 虫洞栈】](https://bugstack.cn/)
