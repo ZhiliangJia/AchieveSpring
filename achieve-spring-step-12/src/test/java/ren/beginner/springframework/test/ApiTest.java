@@ -1,16 +1,23 @@
 package ren.beginner.springframework.test;
 
 import org.aopalliance.intercept.MethodInterceptor;
+import org.junit.Before;
 import org.junit.Test;
 import ren.beginner.springframework.aop.AdvisedSupport;
+import ren.beginner.springframework.aop.ClassFilter;
 import ren.beginner.springframework.aop.MethodMatcher;
 import ren.beginner.springframework.aop.TargetSource;
 import ren.beginner.springframework.aop.aspectj.AspectJExpressionPointcut;
+import ren.beginner.springframework.aop.aspectj.AspectJExpressionPointcutAdvisor;
 import ren.beginner.springframework.aop.framework.Cglib2AopProxy;
 import ren.beginner.springframework.aop.framework.JdkDynamicAopProxy;
+import ren.beginner.springframework.aop.framework.ProxyFactory;
 import ren.beginner.springframework.aop.framework.ReflectiveMethodInvocation;
+import ren.beginner.springframework.aop.framework.adapter.MethodBeforeAdviceInterceptor;
+import ren.beginner.springframework.context.support.ClassPathXmlApplicationContext;
 import ren.beginner.springframework.test.bean.IUserService;
 import ren.beginner.springframework.test.bean.UserService;
+import ren.beginner.springframework.test.bean.UserServiceBeforeAdvice;
 import ren.beginner.springframework.test.bean.UserServiceInterceptor;
 
 import java.lang.reflect.InvocationHandler;
@@ -18,52 +25,77 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 public class ApiTest {
+    private AdvisedSupport advisedSupport;
 
-    @Test
-    public void testAop() throws NoSuchMethodException {
-        AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut("execution(* ren.beginner.springframework.test.bean.UserService.*(..))");
-
-        Class<UserService> clazz = UserService.class;
-        Method method = clazz.getDeclaredMethod("queryUserInfo");
-
-        System.out.println(pointcut.matches(clazz));
-        System.out.println(pointcut.matches(method, clazz));
-    }
-
-    @Test
-    public void testDynamic() {
+    @Before
+    public void init() {
         IUserService userService = new UserService();
-
-        AdvisedSupport advisedSupport = new AdvisedSupport();
+        advisedSupport = new AdvisedSupport();
         advisedSupport.setTargetSource(new TargetSource(userService));
         advisedSupport.setMethodInterceptor(new UserServiceInterceptor());
         advisedSupport.setMethodMatcher(new AspectJExpressionPointcut("execution(* ren.beginner.springframework.test.bean.IUserService.*(..))"));
-
-        IUserService proxyJdk = (IUserService) new JdkDynamicAopProxy(advisedSupport).getProxy();
-        System.out.println("测试结果：" + proxyJdk.queryUserInfo());
-
-        IUserService proxyCglib = (IUserService) new Cglib2AopProxy(advisedSupport).getProxy();
-        System.out.println("测试结果：" + proxyCglib.register("Jzl"));
     }
 
     @Test
-    public void testProxyClass() {
-        IUserService userService = (IUserService) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), new Class[]{IUserService.class}, (proxy, method, args) -> "你被代理了！");
+    public void testProxyFactory() {
+        advisedSupport.setProxyTargetClass(true);
+
+        IUserService proxy = (IUserService) new ProxyFactory(advisedSupport).getProxy();
+        System.out.println("测试结果：" + proxy.queryUserInfo());
+    }
+
+    @Test
+    public void testBeforeAdvice() {
+        UserServiceBeforeAdvice beforeAdvice = new UserServiceBeforeAdvice();
+        MethodBeforeAdviceInterceptor interceptor = new MethodBeforeAdviceInterceptor(beforeAdvice);
+        advisedSupport.setMethodInterceptor(interceptor);
+
+        IUserService proxy = (IUserService) new ProxyFactory(advisedSupport).getProxy();
+        System.out.println("测试结果：" + proxy.queryUserInfo());
+    }
+
+    @Test
+    public void testAdvisor() {
+        IUserService userService = new UserService();
+
+        AspectJExpressionPointcutAdvisor advisor = new AspectJExpressionPointcutAdvisor();
+        advisor.setExpression("execution(* ren.beginner.springframework.test.bean.IUserService.*(..))");
+        advisor.setAdvice(new MethodBeforeAdviceInterceptor(new UserServiceBeforeAdvice()));
+
+        ClassFilter classFilter = advisor.getPointcut().getClassFilter();
+        if (classFilter.matches(userService.getClass())) {
+            AdvisedSupport support = new AdvisedSupport();
+
+            TargetSource targetSource = new TargetSource(userService);
+            support.setTargetSource(targetSource);
+            support.setMethodInterceptor((MethodInterceptor) advisor.getAdvice());
+            support.setMethodMatcher(advisedSupport.getMethodMatcher());
+            support.setProxyTargetClass(false); // false-JDK动态代理 true-CGlib动态代理
+
+            IUserService proxy = (IUserService) new ProxyFactory(support).getProxy();
+            System.out.println("测试结果：" + proxy.queryUserInfo());
+        }
+    }
+
+    @Test
+    public void testAop() {
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring.xml");
+
+        IUserService userService = applicationContext.getBean("userService", IUserService.class);
         System.out.println("测试结果：" + userService.queryUserInfo());
-        System.out.println("测试结果：" + userService.register("Jzl"));
     }
 
     @Test
     public void testProxyMethod() {
-        UserService targetObj = new UserService();
+        Object targetObj = new UserService();
 
         IUserService proxy = (IUserService) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), targetObj.getClass().getInterfaces(), new InvocationHandler() {
-            MethodMatcher methodMatcher = new AspectJExpressionPointcut("execution(* ren.beginner.springframework.test.bean.IUserService.register(..))");
+            MethodMatcher methodMatcher = new AspectJExpressionPointcut("execution(* ren.beginner.springframework.test.bean.IUserService.*(..))");
 
             @Override
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
                 if (methodMatcher.matches(method, targetObj.getClass())) {
-                    MethodInterceptor methodInterceptor = invocation -> {
+                    MethodInterceptor interceptor = invocation -> {
                         long start = System.currentTimeMillis();
                         try {
                             return invocation.proceed();
@@ -74,13 +106,12 @@ public class ApiTest {
                             System.out.println("监控 - End");
                         }
                     };
-                    return methodInterceptor.invoke(new ReflectiveMethodInvocation(targetObj, method, args));
+                    return interceptor.invoke(new ReflectiveMethodInvocation(targetObj, method, args));
                 }
                 return method.invoke(targetObj, args);
             }
         });
 
         System.out.println("测试结果：" + proxy.queryUserInfo());
-        System.out.println("测试结果：" + proxy.register("Jzl"));
     }
 }

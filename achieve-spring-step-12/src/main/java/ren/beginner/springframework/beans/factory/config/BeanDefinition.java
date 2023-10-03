@@ -34,11 +34,11 @@ public class BeanDefinition {
     /**
      * 是否为单例对象
      */
-    private boolean singleton;
+    private boolean singleton = true;
     /**
      * 是否为实例对象
      */
-    private boolean prototype;
+    private boolean prototype = false;
 
     public BeanDefinition(Class beanClass) {
         this(beanClass, null);
