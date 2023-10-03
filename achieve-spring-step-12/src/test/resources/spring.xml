@@ -6,13 +6,25 @@
 
     <bean id="beforeAdvice" class="ren.beginner.springframework.test.bean.UserServiceBeforeAdvice"/>
 
-    <bean id="methodInterceptor"
+    <bean id="beforeInterceptor"
           class="ren.beginner.springframework.aop.framework.adapter.MethodBeforeAdviceInterceptor">
         <property name="advice" ref="beforeAdvice"/>
     </bean>
 
-    <bean id="pointcutAdvisor" class="ren.beginner.springframework.aop.aspectj.AspectJExpressionPointcutAdvisor">
-        <property name="expression" value="execution(* ren.beginner.springframework.test.bean.IUserService.*(..))"/>
-        <property name="advice" ref="methodInterceptor"/>
+    <bean id="pointcutAdvisor1" class="ren.beginner.springframework.aop.aspectj.AspectJExpressionPointcutAdvisor">
+        <property name="expression" value="execution(* ren.beginner.springframework.test.bean.IUserService.queryUserInfo(..))"/>
+        <property name="advice" ref="beforeInterceptor"/>
+    </bean>
+
+    <bean id="afterAdvice" class="ren.beginner.springframework.test.bean.UserServiceAfterAdvice"/>
+
+    <bean id="afterInterceptor"
+          class="ren.beginner.springframework.aop.framework.adapter.AfterReturningAdviceInterceptor">
+        <property name="advice" ref="afterAdvice"/>
+    </bean>
+
+    <bean id="pointcutAdvisor2" class="ren.beginner.springframework.aop.aspectj.AspectJExpressionPointcutAdvisor">
+        <property name="expression" value="execution(* ren.beginner.springframework.test.bean.IUserService.register(..))"/>
+        <property name="advice" ref="afterInterceptor"/>
     </bean>
 </beans>

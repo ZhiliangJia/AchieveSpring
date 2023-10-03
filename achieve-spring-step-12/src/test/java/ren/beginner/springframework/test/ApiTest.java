@@ -13,12 +13,10 @@ import ren.beginner.springframework.aop.framework.Cglib2AopProxy;
 import ren.beginner.springframework.aop.framework.JdkDynamicAopProxy;
 import ren.beginner.springframework.aop.framework.ProxyFactory;
 import ren.beginner.springframework.aop.framework.ReflectiveMethodInvocation;
+import ren.beginner.springframework.aop.framework.adapter.AfterReturningAdviceInterceptor;
 import ren.beginner.springframework.aop.framework.adapter.MethodBeforeAdviceInterceptor;
 import ren.beginner.springframework.context.support.ClassPathXmlApplicationContext;
-import ren.beginner.springframework.test.bean.IUserService;
-import ren.beginner.springframework.test.bean.UserService;
-import ren.beginner.springframework.test.bean.UserServiceBeforeAdvice;
-import ren.beginner.springframework.test.bean.UserServiceInterceptor;
+import ren.beginner.springframework.test.bean.*;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -78,11 +76,42 @@ public class ApiTest {
     }
 
     @Test
+    public void testAfterAdvisor() {
+        IUserService userService = new UserService();
+
+        AspectJExpressionPointcutAdvisor advisor = new AspectJExpressionPointcutAdvisor();
+        advisor.setExpression("execution(* ren.beginner.springframework.test.bean.IUserService.*(..))");
+        advisor.setAdvice(new AfterReturningAdviceInterceptor(new UserServiceAfterAdvice()));
+
+        ClassFilter classFilter = advisor.getPointcut().getClassFilter();
+        if (classFilter.matches(userService.getClass())) {
+            AdvisedSupport support = new AdvisedSupport();
+
+            TargetSource targetSource = new TargetSource(userService);
+            support.setTargetSource(targetSource);
+            support.setMethodInterceptor((MethodInterceptor) advisor.getAdvice());
+            support.setMethodMatcher(advisedSupport.getMethodMatcher());
+            support.setProxyTargetClass(false); // false-JDK动态代理 true-CGlib动态代理
+
+            IUserService proxy = (IUserService) new ProxyFactory(support).getProxy();
+            System.out.println("测试结果：" + proxy.register("Jzl"));
+        }
+    }
+
+    @Test
     public void testAop() {
         ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring.xml");
 
         IUserService userService = applicationContext.getBean("userService", IUserService.class);
         System.out.println("测试结果：" + userService.queryUserInfo());
+    }
+
+    @Test
+    public void testAopAfter() {
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring.xml");
+
+        IUserService userService = applicationContext.getBean("userService", IUserService.class);
+        System.out.println("测试结果：" + userService.register("Jzl"));
     }
 
     @Test
