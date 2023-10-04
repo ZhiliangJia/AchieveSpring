@@ -1,5 +1,7 @@
 package ren.beginner.springframework.aop;
 
+import ren.beginner.springframework.util.ClassUtils;
+
 /**
  * {@code TargetSource}用于获取AOP调用的当前“目标”，如果没有around通知选择结束拦截器链本身，则将通过反射调用该目标。
  *
@@ -22,7 +24,9 @@ public class TargetSource {
      * @return
      */
     public Class<?>[] getTargetClass() {
-        return this.target.getClass().getInterfaces();
+        Class<?> clazz = this.target.getClass();
+        clazz = ClassUtils.isCglibProxyClass(clazz) ? clazz.getSuperclass() : clazz;
+        return clazz.getInterfaces();
     }
 
     public Object getTarget() {
