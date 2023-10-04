@@ -3,7 +3,6 @@ package ren.beginner.springframework.context.annotation;
 import cn.hutool.core.util.ClassUtil;
 import ren.beginner.springframework.beans.factory.config.BeanDefinition;
 import ren.beginner.springframework.stereotype.Component;
-import ren.beginner.springframework.utils.ClassUtils;
 
 import java.util.LinkedHashSet;
 import java.util.Set;

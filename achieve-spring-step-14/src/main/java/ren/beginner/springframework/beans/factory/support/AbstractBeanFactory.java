@@ -5,7 +5,8 @@ import ren.beginner.springframework.beans.factory.FactoryBean;
 import ren.beginner.springframework.beans.factory.config.BeanDefinition;
 import ren.beginner.springframework.beans.factory.config.BeanPostProcessor;
 import ren.beginner.springframework.beans.factory.config.ConfigurableBeanFactory;
-import ren.beginner.springframework.utils.ClassUtils;
+import ren.beginner.springframework.util.ClassUtils;
+import ren.beginner.springframework.util.StringValueResolver;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +28,11 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
      * BeanPostProcessor列表
      */
     private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<>();
+    /**
+     * 字符串解析器应用于注释属性值
+     */
+    private final List<StringValueResolver> embeddedValueResolvers = new ArrayList<>();
+
 
     @Override
     public Object getBean(String name) {
@@ -41,6 +47,11 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
     @Override
     public <T> T getBean(String name, Class<T> requiredType) throws BeansException {
         return (T) getBean(name);
+    }
+
+    @Override
+    public <T> T getBean(Class<T> requiredType) throws BeansException {
+        return null;
     }
 
     protected <T> T doGetBean(final String name, final Object[] args) {
@@ -92,6 +103,20 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
     public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
         this.beanPostProcessors.remove(beanPostProcessor);
         this.beanPostProcessors.add(beanPostProcessor);
+    }
+
+    @Override
+    public void addEmbeddedValueResolver(StringValueResolver valueResolver) {
+        this.embeddedValueResolvers.add(valueResolver);
+    }
+
+    @Override
+    public String resolveEmbeddedValue(String value) {
+        String result = value;
+        for (StringValueResolver resolver : this.embeddedValueResolvers) {
+            result = resolver.resolveStringValue(result);
+        }
+        return result;
     }
 
     public List<BeanPostProcessor> getBeanPostProcessors() {

@@ -1,4 +1,4 @@
-package ren.beginner.springframework.utils;
+package ren.beginner.springframework.util;
 
 /**
  * Class常用方法

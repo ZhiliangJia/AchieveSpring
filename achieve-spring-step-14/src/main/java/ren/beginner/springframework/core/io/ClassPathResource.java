@@ -1,7 +1,7 @@
 package ren.beginner.springframework.core.io;
 
 import com.google.common.base.Preconditions;
-import ren.beginner.springframework.utils.ClassUtils;
+import ren.beginner.springframework.util.ClassUtils;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

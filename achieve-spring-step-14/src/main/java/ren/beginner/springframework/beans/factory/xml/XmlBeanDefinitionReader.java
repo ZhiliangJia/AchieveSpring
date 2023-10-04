@@ -1,7 +1,6 @@
 package ren.beginner.springframework.beans.factory.xml;
 
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.core.util.XmlUtil;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -120,7 +119,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 
                 // 创建属性信息
                 PropertyValue propertyValue = new PropertyValue(attrName, value);
-                beanDefinition.getPropertyValues().addPropertyList(propertyValue);
+                beanDefinition.getPropertyValues().addPropertyValue(propertyValue);
             }
 
             if (getRegistry().containsBeanDefinition(beanName)) {

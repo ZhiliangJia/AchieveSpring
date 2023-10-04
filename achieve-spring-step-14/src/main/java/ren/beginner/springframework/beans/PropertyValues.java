@@ -15,7 +15,7 @@ public class PropertyValues {
      */
     private final List<PropertyValue> propertyValueList = new ArrayList<>();
 
-    public void addPropertyList(PropertyValue value) {
+    public void addPropertyValue(PropertyValue value) {
         this.propertyValueList.add(value);
     }
 

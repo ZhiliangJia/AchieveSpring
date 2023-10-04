@@ -1,6 +1,7 @@
 package ren.beginner.springframework.beans.factory.config;
 
 import ren.beginner.springframework.beans.factory.HierarchicalBeanFactory;
+import ren.beginner.springframework.util.StringValueResolver;
 
 /**
  * 大多数bean工厂要实现的配置接口。除了{@link-org.springframework.beans.factory.BeanFactory}接口
@@ -30,4 +31,19 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
      * 单例对象的销毁
      */
     void destroySingletons();
+
+    /**
+     * 为嵌入式值（例如注释属性）添加字符串解析器。
+     *
+     * @param valueResolver
+     */
+    void addEmbeddedValueResolver(StringValueResolver valueResolver);
+
+    /**
+     * 解析给定的内嵌值，例如注释属性。
+     *
+     * @param value
+     * @return
+     */
+    String resolveEmbeddedValue(String value);
 }

@@ -1,6 +1,7 @@
 package ren.beginner.springframework.beans.factory.config;
 
 import ren.beginner.springframework.beans.BeansException;
+import ren.beginner.springframework.beans.PropertyValues;
 
 /**
  * ｛@link BeanPostProcessor｝的子接口，它添加了实例化前的回调和实例化后但在设置显式属性或发生自动连接之前的回调。
@@ -19,4 +20,15 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
      * @throws BeansException
      */
     Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) throws BeansException;
+
+    /**
+     * 在 Bean 对象实例化完成后，设置属性操作之前执行此方法
+     *
+     * @param propertyValues
+     * @param bean
+     * @param beanName
+     * @return
+     * @throws BeansException
+     */
+    PropertyValues postProcessPropertyValues(PropertyValues propertyValues, Object bean, String beanName) throws BeansException;
 }
