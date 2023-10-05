@@ -1,11 +1,14 @@
-那么在自动扫描包注册 Bean 对象之后，就需要把原来在配置文件中通过 property name="token" 配置属性和Bean的操作，也改为可以自动注入。这就像我们使用 Spring 框架中 @Autowired、@Value 注解一样，完成我们对属性和对象的注入操作。
+按照目前我们实现的 Spring 框架，是可以满足一个基本需求的，但如果你配置了A、B两个Bean对象互相依赖，那么立马会抛出
+java.lang.StackOverflowError，为什么呢？因为A创建时需要依赖B创建，而B的创建又依赖于A创建，就这样死循环了。
 
-![](https://bugstack.cn/assets/images/spring/spring-15-01.png)
+![](https://bugstack.cn/assets/images/spring/spring-17-04.png)
 
-- 要处理自动扫描注入，包括属性注入、对象注入，则需要在对象属性 applyPropertyValues 填充之前 ，把属性信息写入到 PropertyValues 的集合中去。这一步的操作相当于是解决了以前在 spring.xml 配置属性的过程。
-- 而在属性的读取中，需要依赖于对 Bean 对象的类中属性的配置了注解的扫描，field.getAnnotation(Value.class); 依次拿出符合的属性并填充上相应的配置信息。这里有一点 ，属性的配置信息需要依赖于 BeanFactoryPostProcessor 的实现类 PropertyPlaceholderConfigurer，把值写入到 AbstractBeanFactory的embeddedValueResolvers集合中，这样才能在属性填充中利用 beanFactory 获取相应的属性值
-- 还有一个是关于 @Autowired 对于对象的注入，其实这一个和属性注入的唯一区别是对于对象的获取 beanFactory.getBean(fieldType)，其他就没有什么差一点了。
-- 当所有的属性被设置到 PropertyValues 完成以后，接下来就到了创建对象的下一步，属性填充，而此时就会把我们一一获取到的配置和对象填充到属性上，也就实现了自动注入的功能。
+- 关于循环依赖在我们目前的 Spring 框架中扩展起来也并不会太复杂，主要就是对于创建对象的提前暴露，如果是工厂对象则会使用
+  getEarlyBeanReference 逻辑提前将工厂🏭对象存放到三级缓存中。等到后续获取对象的时候实际拿到的是工厂对象中
+  getObject，这个才是最终的实际对象。
+- 在创建对象的 AbstractAutowireCapableBeanFactory#doCreateBean 方法中，提前暴露对象以后，就可以通过接下来的流程，getSingleton
+  从三个缓存中以此寻找对象，一级、二级如果有则直接取走，如果对象是三级缓存中则会从三级缓存中获取后并删掉工厂对象，把实际对象放到二级缓存中。
+- 最后是关于单例的对象的注册操作，这个注册操作就是把真实的实际对象放到一级缓存中，因为此时它已经是一个成品对象了。
 
 参考文献：
 

@@ -27,15 +27,25 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
     @Override
     protected Object createBean(String beanName, BeanDefinition beanDefinition, Object[] args) throws BeansException {
+        Object bean = resolveBeforeInstantiation(beanName, beanDefinition);
+        if (null != bean) {
+            return bean;
+        }
+        return doCreateBean(beanName, beanDefinition, args);
+    }
+
+    protected Object doCreateBean(String beanName, BeanDefinition beanDefinition, Object[] args) {
         Object bean = null;
         try {
-            // 判断是否返回代理Bean对象
-            bean = resolveBeforeInstantiation(beanName, beanDefinition);
-            if (null != bean) {
-                return bean;
-            }
             // 实例化 Bean
             bean = createBeanInstance(beanDefinition, beanName, args);
+
+            // 处理循环依赖，将实例化后的Bean对象提前放入缓存中暴露出来
+            if (beanDefinition.isSingleton()) {
+                Object finalBean = bean;
+                addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, beanDefinition, finalBean));
+            }
+
             // 实例化后判断
             boolean continueWithPropertyPopulation = applyBeanPostProcessorsAfterInstantiation(beanName, bean);
             if (!continueWithPropertyPopulation) {
@@ -45,7 +55,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             applyBeanPostProcessorsBeforeApplyingPropertyValues(beanName, bean, beanDefinition);
             // 给 Bean 填充属性
             applyPropertyValues(beanName, bean, beanDefinition);
-            // 执行Bean初始化方法和BeanPostProcessor的前置和后置处理方法
+            // 执行 Bean 的初始化方法和 BeanPostProcessor 的前置和后置处理方法
             bean = initializeBean(beanName, bean, beanDefinition);
         } catch (Exception e) {
             throw new BeansException("Instantiation of bean failed", e);
@@ -55,10 +65,35 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         registerDisposableBeanIfNecessary(beanName, bean, beanDefinition);
 
         // 判断 SCOPE_SINGLETON、SCOPE_PROTOTYPE
+        Object exposedObject = bean;
         if (beanDefinition.isSingleton()) {
-            registerSingleton(beanName, bean);
+            // 获取代理对象
+            exposedObject = getSingleton(beanName);
+            registerSingleton(beanName, exposedObject);
         }
-        return bean;
+        return exposedObject;
+    }
+
+    /**
+     * 获取半成品对象
+     *
+     * @param beanName
+     * @param beanDefinition
+     * @param bean
+     * @return
+     */
+    protected Object getEarlyBeanReference(String beanName, BeanDefinition beanDefinition, Object bean) {
+        Object exposedObject = bean;
+        for (BeanPostProcessor beanPostProcessor : getBeanPostProcessors()) {
+            if (beanPostProcessor instanceof InstantiationAwareBeanPostProcessor) {
+                exposedObject = ((InstantiationAwareBeanPostProcessor) beanPostProcessor).getEarlyBeanReference(exposedObject, beanName);
+                if (null == exposedObject) {
+                    return exposedObject;
+                }
+            }
+        }
+
+        return exposedObject;
     }
 
     /**

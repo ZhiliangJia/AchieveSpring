@@ -2,8 +2,8 @@ package ren.beginner.springframework.test;
 
 import org.junit.Test;
 import ren.beginner.springframework.context.support.ClassPathXmlApplicationContext;
-import ren.beginner.springframework.test.bean.IUserService;
-import ren.beginner.springframework.test.bean2.IUserService2;
+import ren.beginner.springframework.test.bean.Husband;
+import ren.beginner.springframework.test.bean.Wife;
 
 /**
  * @Created by Zhiliang
@@ -12,16 +12,11 @@ import ren.beginner.springframework.test.bean2.IUserService2;
 public class ApiTest {
 
     @Test
-    public void testAutoProxy() {
+    public void testCircular() {
         ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring.xml");
-        IUserService userService = applicationContext.getBean("userService", IUserService.class);
-        System.out.println("测试结果" + userService.queryUserInfo());
-    }
-
-    @Test
-    public void testAutoProxy2() {
-        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring2.xml");
-        IUserService2 userService = applicationContext.getBean("userService2", IUserService2.class);
-        System.out.println("测试结果：" + userService.queryUserInfo());
+        Husband husband = applicationContext.getBean("husband", Husband.class);
+        Wife wife = applicationContext.getBean("wife", Wife.class);
+        System.out.println("老公的媳妇：" + husband.queryWife());
+        System.out.println("媳妇的老公：" + wife.queryHusband());
     }
 }

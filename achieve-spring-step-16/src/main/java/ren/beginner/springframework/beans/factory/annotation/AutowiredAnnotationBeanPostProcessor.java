@@ -73,7 +73,7 @@ public class AutowiredAnnotationBeanPostProcessor implements InstantiationAwareB
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        return bean;
+        return null;
     }
 
     @Override
